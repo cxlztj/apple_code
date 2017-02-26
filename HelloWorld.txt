@@ -1,0 +1,8 @@
+#import <fundation fundation.h>
+ 
+int main(int argc, const char *argv[])
+{
+  NSLog(@"Hello World and Objective-C!");
+ 
+  return (0);
+}  // main
