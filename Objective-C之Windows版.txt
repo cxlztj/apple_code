@@ -1,0 +1,109 @@
+Objective-C之Windows版Hello, World! 
+
+
+Mac笔记本实在是贵，所以一直没舍得买，如此一来，就只能在我的Windows操作系统上学Objective-C了。
+
+安装GNUstep
+
+GNUstep Windows Installer提供了Windows平台下的Objective-C的模拟开发环境，一共有四个软件包，
+其中GNUstep System和GNUstep Core是必装的，GNUstep Devel和Cairo Backend是选装的。甭管必装选装，
+一次性全安上，免得以后麻烦。
+
+编写Hello, World!
+
+安装完成后，在开始菜单里的GNUstep选项里执行shell，就能打开命令行，在这里就可以使用vi编写Object-C
+程序了，不过操作起来总有些繁琐，其实也可以直接在Windows里进入C:\GNUstep\home\username目录，在这
+里用你喜欢的工具编写Object-C程序，然后再进入shell里编译。
+
+直接给出helloworld.m文件内容，取自Programming in Objective-C 2.0一书：
+
+#import <Foundation/Foundation.h>
+
+int main (int argc, const char *argv[]) {
+NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+NSLog(@"Hello World!");
+[pool drain];
+
+return 0;
+}
+
+第一次编译：
+
+gcc -o helloworld helloworld.m
+
+结果出现错误信息，找不到头文件：
+
+helloworld.m:1:34: Foundation/Foundation.h: No such file or directory
+helloworld.m: In function `main':
+helloworld.m:4: error: `NSAutoreleasePool' undeclared (first use in this function)
+helloworld.m:4: error: (Each undeclared identifier is reported only once
+helloworld.m:4: error: for each function it appears in.)
+helloworld.m:4: error: `pool' undeclared (first use in this function)
+helloworld.m:5: error: cannot find interface declaration for `NXConstantString'
+
+第二次编译：
+
+gcc -o helloworld helloworld.m \
+-I /GNUstep/System/Library/Headers/
+
+结果出现错误信息，找不到接口声明：
+
+helloworld.m: In function `main':
+helloworld.m:5: error: cannot find interface declaration for `NXConstantString'
+
+第三次编译：
+
+gcc -o helloworld helloworld.m \
+-fconstant-string-class=NSConstantString \
+-I /GNUstep/System/Library/Headers/
+
+结果出现错误信息，找不到链接库：
+
+helloworld.m:(.text+0x33): undefined reference to `_objc_get_class'
+helloworld.m:(.text+0x45): undefined reference to `_objc_msg_lookup'
+helloworld.m:(.text+0x64): undefined reference to `_objc_msg_lookup'
+helloworld.m:(.text+0x80): undefined reference to `_NSLog'
+helloworld.m:(.text+0x93): undefined reference to `_objc_msg_lookup'
+helloworld.m:(.text+0xbc): undefined reference to `___objc_exec_class'
+helloworld.m:(.data+0x74): undefined reference to `___objc_class_name_NSAutoreleasePool'
+helloworld.m:(.data+0x78): undefined reference to `___objc_class_name_NSConstantString'
+collect2: ld returned 1 exit status
+
+第四次编译：
+
+gcc -o helloworld helloworld.m \
+-fconstant-string-class=NSConstantString \
+-I /GNUstep/System/Library/Headers/ \
+-L /GNUstep/System/Library/Libraries/ \
+-lobjc \
+-lgnustep-base
+
+注意：helloworld.m必须出现在-lobjc和-lgnustep-base的前面，否则会出错。
+
+此时会出现一些info提示信息，不过不碍事，终于成功了生成了可执行文件，执行./helloworld.exe看结果。
+
+快捷方式：
+
+如果每次使用gcc的时候，都要输入这么长的命令，无疑是很恼火的事儿，我们可以做一个快捷方式：
+
+编辑C:\GNUstep\bin\gcc.sh的文件，内容如下：
+
+#!/bin/sh
+
+if [ $# -ne 1 ]; then
+echo "Usage: $0 name"
+exit 1
+fi
+
+gcc -g -o $1 $1.m \
+-fconstant-string-class=NSConstantString \
+-I /GNUstep/System/Library/Headers/ \
+-L /GNUstep/System/Library/Libraries/ \
+-lobjc \
+-lgnustep-base
+
+exit 0
+
+其中，gcc加入了-g参数，方便gdb调试，使用时就很方便了，注意别带扩展名m：
+
+gcc.sh helloworld
