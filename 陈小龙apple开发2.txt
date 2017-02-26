@@ -1,0 +1,12 @@
+2012.5.29
+
+
+今天主要研究GNUstep下的图形编程。
+1. 安装SystemPreferences和gorm。
+2. GNUstep--->>>Apps--->>>gorm
+   启动gorm
+
+3. 文件夹001中包含project 001，
+存放在001.gorm文件夹中，有3个文件
+data.classes,data.info,objects.gorm。
+打开*.gorm即可测试和运行001项目。
